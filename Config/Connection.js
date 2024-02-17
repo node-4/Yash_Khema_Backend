@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 module.exports = () => {
-	mongoose.connect('mongodb+srv://node2Car:1atVkS8V9y7ZDtC7@cluster0.ncjuthj.mongodb.net/Yash_Khema_Backend', {
+	mongoose.connect('mongodb+srv://node4:node4@cluster0.m36gc8y.mongodb.net/Yash_Khema_Backend?retryWrites=true&w=majority', {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	})
