@@ -68,6 +68,7 @@ exports.getServiceById = async (id) => {
 }
 exports.getServiceBycategorySubCategoryId = async (category, subCategory) => {
 	try {
+		console.log(category, subCategory)
 		const result = await services.find({ subCategory: subCategory, category: category })
 		if (result) {
 			return {
