@@ -103,6 +103,12 @@ const orderSchema = new Schema({
   deliveredAt: {
     type: Date,
   },
+  serviceDate: {
+    type: Date,
+  },
+  serviceTime: {
+    type: String
+  },
   grandTotal: {
     type: Number,
   },

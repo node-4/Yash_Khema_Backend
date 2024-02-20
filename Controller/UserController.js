@@ -2,11 +2,13 @@ const UserService = require('../Service/UserService.js');
 const User = require('../Models/User');
 const { sendSms } = require("../Helpers/Sms.js");
 const { generateOTP, verifyOTP } = require("../Helpers/Otp.js");
+const wallet = require("../Models/Wallet");
+const transactionModel = require("../Models/transactionModel");
 
 exports.userMobileRegister = async (req, res, next) => {
 	try {
-		let Data = await UserService.userMobileRegister(req.body.phoneNumber);
-		return res.status(201).json({ msg: `otp sent to ${req.body.phoneNumber}`, data: Data.otp.magnitude })
+		let Data = await UserService.userMobileRegister(req.body.phoneNumber, req.body.refferalCode);
+		return res.status(201).json(Data)
 	} catch (error) {
 		next(error);
 	}
@@ -260,5 +262,104 @@ exports.DeletePaymentCard = async (req, res, next) => {
 	} catch (err) {
 		console.log(err);
 		return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+	}
+};
+exports.getWallet = async (req, res) => {
+	try {
+		let findSkill1 = await wallet.findOne({ user: req.user._id, });
+		if (!findSkill1) {
+			return res.status(404).send({ status: 404, msg: "Wallet not found successfully.", data: 0 });
+		} else {
+			return res.status(200).send({ status: 200, msg: "Wallet get successfully.", data: findSkill1 });
+		}
+	} catch (err) {
+		console.log(err.message);
+		return res.status(500).send({ msg: "internal server error ", error: err.message, });
+	}
+};
+exports.allTransactionUser = async (req, res) => {
+	try {
+		const data = await transactionModel.find({ user: req.user._id })
+		if (data.length > 0) {
+			return res.status(200).json({ status: 200, message: "Data found successfully.", data: data });
+		} else {
+			return res.status(404).json({ status: 404, message: "Data not found.", data: {} });
+		}
+
+	} catch (err) {
+		return res.status(400).json({ message: err.message });
+	}
+};
+exports.removeMoney = async (req, res) => {
+	try {
+		let findSkill1 = await wallet.findOne({ user: req.user._id, });
+		if (!findSkill1) {
+			return res.status(404).send({ status: 404, msg: "Wallet not found successfully.", data: 0 });
+		} else {
+			if (findSkill1.balance >= parseInt(req.body.balance)) {
+				let update = await wallet.findByIdAndUpdate({ _id: findSkill1._id }, { $set: { balance: findSkill1.balance - parseInt(req.body.balance) } }, { new: true });
+				if (update) {
+					const date = new Date();
+					let month = date.getMonth() + 1;
+					let obj = {
+						user: req.user._id,
+						date: date,
+						month: month,
+						orderId: req.body.orderId,
+						amount: req.body.balance,
+						type: "Debit",
+					};
+					const data1 = await transactionModel.create(obj);
+					if (data1) {
+						return res.status(200).json({ status: 200, message: "Money has been deducted.", data: data1, });
+					}
+				}
+			} else {
+				return res.status(404).send({ status: 404, msg: "Low balance.", data: 0 });
+			}
+		}
+	} catch (error) {
+		console.log(error);
+		return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+	}
+};
+exports.addMoney = async (req, res) => {
+	try {
+		let findSkill1 = await wallet.findOne({ user: req.user._id, });
+		if (!findSkill1) {
+			return res.status(404).send({ status: 404, msg: "Wallet not found successfully.", data: 0 });
+		} else {
+			let update = await wallet.findByIdAndUpdate({ _id: findSkill1._id }, { $set: { balance: findSkill1.balance + parseInt(req.body.balance) } }, { new: true });
+			if (update) {
+				const date = new Date();
+				let month = date.getMonth() + 1;
+				let obj = {
+					user: req.user._id,
+					date: date,
+					month: month,
+					amount: req.body.balance,
+					type: "Credit",
+				};
+				const data1 = await transactionModel.create(obj);
+				if (data1) {
+					return res.status(200).json({ status: 200, message: "Money has been deducted.", data: data1, });
+				}
+			}
+		}
+	} catch (error) {
+		console.log(error);
+		return res.status(501).send({ status: 501, message: "server error.", data: {}, });
+	}
+};
+exports.allEarn = async (req, res) => {
+	try {
+		const data = await transactionModel.find({ user: req.user._id, type: "Earn" })
+		if (data.length > 0) {
+			return res.status(200).json({ status: 200, message: "Data found successfully.", data: data });
+		} else {
+			return res.status(404).json({ status: 404, message: "Data not found.", data: {} });
+		}
+	} catch (err) {
+		return res.status(400).json({ message: err.message });
 	}
 };

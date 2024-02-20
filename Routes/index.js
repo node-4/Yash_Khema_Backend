@@ -24,5 +24,5 @@ route.use('/seller', require('./SellerRoutes'));
 route.use('/service', require('./ServicesRoutes'));
 route.use('/order', require('./order'))
 route.use('/notify', require('./notification'))
-
+route.use('/contact', require('./contact'))
 module.exports = route

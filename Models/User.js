@@ -20,8 +20,6 @@ const OtpSchema = mongoose.Schema({
     _id: false,
     versionKey: false
 });
-
-
 const userSchema = mongoose.Schema({
     name: {
         type: String,
@@ -99,6 +97,10 @@ const userSchema = mongoose.Schema({
             type: String
         }
     },
+    refferalCode: { type: String, },
+    refferalCodeUsed: { type: Boolean, default: false, },
+    refferUserId: { type: mongoose.Types.ObjectId, ref: "user" },
+    joinUser: [{ type: mongoose.Types.ObjectId, ref: "user" }],
     servies: [],
     location: {
         address: {

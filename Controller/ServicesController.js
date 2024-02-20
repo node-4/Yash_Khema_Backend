@@ -1,6 +1,7 @@
 const ServicesService = require('../Service/ServicesService');
 const Wishlist = require('../Models/WishlistModel');
 const Services = require('../Models/Services');
+const slot = require('../Models/slot');
 exports.addService = async (req, res) => {
 	try {
 		const payload = req.body
@@ -200,6 +201,7 @@ exports.myWishlist = async (req, res, next) => {
 			myList = await Wishlist.create({ user: req.user._id });
 		}
 		let array = []
+		console.log(myList)
 		for (let i = 0; i < myList.services.length; i++) {
 			const data = await Services.findById(myList.services[i]._id).populate('category subCategory')
 			array.push(data)
@@ -229,3 +231,77 @@ exports.getPopularService = async (req, res) => {
 		return res.status(500).json({ message: error.message })
 	}
 }
+exports.getSlot = async (req, res) => {
+	try {
+		const { fromDate, date, toDate, page, limit } = req.query;
+		let query = {};
+		if (date) {
+			query.date = date;
+		}
+		if (fromDate && !toDate) {
+			query.date = { $gte: fromDate };
+		}
+		if (!fromDate && toDate) {
+			query.date = { $lte: toDate };
+		}
+		if (fromDate && toDate) {
+			query.$and = [
+				{ date: { $gte: fromDate } },
+				{ date: { $lte: toDate } },
+			]
+		}
+		let options = {
+			page: Number(page) || 1,
+			limit: Number(limit) || 10,
+			sort: { from: 1 },
+		};
+		let data = await slot.paginate(query, options);
+		return res.status(200).json({ status: 200, message: "Slot data found.", data: data.docs });
+	} catch (err) {
+		return res.status(500).send({ msg: "internal server error ", error: err.message, });
+	}
+};
+async function generateSlots(startDate, numberOfDays) {
+	try {
+		function getAmPm(date) {
+			const hours = date.getUTCHours();
+			return hours >= 12 && hours < 24 ? 'PM' : 'AM';
+		}
+		const intervalMilliseconds = 24 * 60 * 60 * 1000;
+		let currentDate = new Date(startDate);
+		currentDate.setUTCHours(10, 0, 0, 0);
+		const endDate = new Date(currentDate.getTime() + numberOfDays * intervalMilliseconds);
+		const slots = [];
+		for (; currentDate.getTime() < endDate.getTime(); currentDate.setDate(currentDate.getDate() + 1)) {
+			const startTime = new Date(currentDate.getTime());
+			const endTime = new Date(currentDate.getTime() + 7 * 60 * 60 * 1000);
+			const halfHour = 60 * 60 * 1000;
+			while (startTime.getTime() < endTime.getTime()) {
+				const slotEndTime = new Date(startTime.getTime() + halfHour);
+				const obj = {
+					date: currentDate.toISOString().split('T')[0],
+					from: startTime.toISOString(),
+					to: slotEndTime.toISOString(),
+					fromAmPm: getAmPm(startTime),
+					toAmPm: getAmPm(slotEndTime),
+				};
+				console.log(obj);
+				const findSlot = await slot.findOne(obj);
+				if (!findSlot) {
+					const slot1 = new slot(obj);
+					await slot1.save();
+					slots.push(obj);
+				}
+				startTime.setTime(slotEndTime.getTime());
+			}
+		}
+		return slots;
+	} catch (error) {
+		console.log("Slots error.", error);
+	}
+}
+async function generateSlotsForNext5Years() {
+	const generatedSlots = await generateSlots(new Date('2024-02-01T00:00:00Z'), 365);
+	console.log(generatedSlots);
+}
+generateSlotsForNext5Years();

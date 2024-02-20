@@ -26,5 +26,9 @@ router.post('/createPaymentCard', Auth.requireSignin, UserController.createPayme
 router.get('/getPaymentCard', Auth.requireSignin, UserController.getPaymentCard);
 router.put('/updatePaymentCard/:id', Auth.requireSignin, UserController.updatePaymentCard);
 router.delete('/DeletePaymentCard/:id', Auth.requireSignin, UserController.DeletePaymentCard);
-
+router.get('/get/Wallet', Auth.requireSignin, UserController.getWallet);
+router.get('/get/transaction', Auth.requireSignin, UserController.allTransactionUser);
+router.post('/Wallet/removeMoney', Auth.requireSignin, UserController.removeMoney);
+router.post('/Wallet/addMoney', Auth.requireSignin, UserController.addMoney);
+router.get('/get/allEarn', Auth.requireSignin, UserController.allEarn);
 module.exports = router

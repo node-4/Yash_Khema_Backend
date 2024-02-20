@@ -8,21 +8,60 @@ const { generateOTP, verifyOTP } = require('../Helpers/Otp.js');
 const { sendSms } = require('../Helpers/Sms.js');
 const { ValidationError } = require('../Errors');
 const emailHelper = require('../Helpers/Email');
-exports.userMobileRegister = async (phoneNumber) => {
+const transactionModel = require("../Models/transactionModel");
+exports.userMobileRegister = async (phoneNumber, refferalCode) => {
 	try {
-		const userExist = await User.findOne({ phone_number: phoneNumber, userType: "user" });
-		if (userExist) {
+		if (refferalCode == null || refferalCode == undefined) {
+			const userExist = await User.findOne({ phone_number: phoneNumber, userType: "user" });
+			if (userExist) {
+				const otp = await generateOTP(4);
+				userExist.otp = { magnitude: otp, type: 'registration' }
+				await userExist.save();
+				return { msg: `otp sent to ${phoneNumber}`, data: userExist.otp.magnitude };
+			}
+			const user = new User({ phone_number: phoneNumber, userType: "user" });
+			user.refferalCode = await reffralCode();
 			const otp = await generateOTP(4);
-			userExist.otp = { magnitude: otp, type: 'registration' }
-			await userExist.save();
-			return userExist
+			user.otp = { magnitude: otp, type: 'registration' };
+			await user.save();
+			await wallet.create({ user: user._id, user_type: "user" })
+			return { msg: `otp sent to ${phoneNumber}`, data: user.otp.magnitude };
+		} else {
+			const findUser = await User.findOne({ refferalCode: refferalCode });
+			if (findUser) {
+				const userExist = await User.findOne({ phone_number: phoneNumber, userType: "user" });
+				if (userExist) {
+					const otp = await generateOTP(4);
+					userExist.otp = { magnitude: otp, type: 'registration' }
+					await userExist.save();
+					return { msg: `otp sent to ${phoneNumber}`, data: userExist.otp.magnitude };
+				}
+				const user = new User({ phone_number: phoneNumber, userType: "user" });
+				user.refferalCode = await reffralCode();
+				const otp = await generateOTP(4);
+				user.otp = { magnitude: otp, type: 'registration' };
+				await user.save();
+				await wallet.create({ user: user._id, user_type: "user" })
+				let findSkill1 = await wallet.findOne({ user: findUser._id });
+				let update = await wallet.findOneAndUpdate({ user: findUser._id }, { $set: { balance: findSkill1.balance + 500 } }, { new: true });
+				let updateWallet = await User.findOneAndUpdate({ _id: findUser._id }, { $push: { joinUser: user._id } }, { new: true });
+				if (update) {
+					const date = new Date();
+					let month = date.getMonth() + 1;
+					let obj = {
+						user: findUser._id,
+						date: date,
+						month: month,
+						amount: 500,
+						type: "Earn",
+					};
+					const data1 = await transactionModel.create(obj);
+				}
+				return { msg: `otp sent to ${phoneNumber}`, data: user.otp.magnitude };
+			} else {
+				return { status: 404, msg: "Referal code not found.", data: {} };
+			}
 		}
-		const user = new User({ phone_number: phoneNumber, userType: "user" });
-		const otp = await generateOTP(4);
-		user.otp = { magnitude: otp, type: 'registration' };
-		await user.save();
-		await wallet.create({ user: user._id, user_type: "user" })
-		return user
 	} catch (error) {
 		throw error;
 	}
@@ -34,7 +73,8 @@ exports.userRegister = async (phoneNumber, name, password, location, vechicle) =
 		if (userExist) {
 			throw new ValidationError('user with phone number already exists');
 		}
-		const user = new User({ phone_number: phoneNumber, name: name, password: password, location: location, vechicle: vechicle, userType: "user" });
+		let refferalCode = await reffralCode();
+		const user = new User({ phone_number: phoneNumber, refferalCode: refferalCode, name: name, password: password, location: location, vechicle: vechicle, userType: "user" });
 		const otp = await generateOTP(4);
 		user.otp = { magnitude: otp, type: 'registration' }
 		console.log("otp", otp)
@@ -390,3 +430,12 @@ exports.DeletePaymentCard = async (id) => {
 		return { status: 501, message: "server error.", data: {}, }
 	}
 };
+
+const reffralCode = async () => {
+	var digits = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	let OTP = '';
+	for (let i = 0; i < 9; i++) {
+		OTP += digits[Math.floor(Math.random() * 36)];
+	}
+	return OTP;
+}

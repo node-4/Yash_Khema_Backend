@@ -18,7 +18,8 @@ router.delete('/:serviceid', ServicesController.deleteService);
 router.get('/seller/:sellerId', ServicesController.getSellelerSellerId)
 router.post("/user/createWishlist/:id", Auth.requireSignin, ServicesController.createWishlist);
 router.post("/user/removeFromWishlist/:id", Auth.requireSignin, ServicesController.removeFromWishlist);
-router.get("/user/myWishlist", Auth.requireSignin, ServicesController.myWishlist);
+router.get("/user/my/Wishlist", Auth.requireSignin, ServicesController.myWishlist);
 router.get("/user/getPopular/Service", ServicesController.getPopularService);
+router.get("/get/Slot/All", ServicesController.getSlot);
 
 module.exports = router

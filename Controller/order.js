@@ -74,6 +74,9 @@ exports.createOrder = async (req, res) => {
         order.orderType = "Service"
         order.orderStatus = "Pending"
         order.instellers = instellers
+        order.serviceDate = req.body.serviceDate;
+        order.serviceTime = req.body.serviceTime;
+        console.log(order)
         const result = await Order.create(order);
         return res.status(201).send({ status: true, message: "Success", data: result });
       }
