@@ -251,12 +251,12 @@ exports.getSlot = async (req, res) => {
 			]
 		}
 		let options = {
-			page: Number(page) || 1,
-			limit: Number(limit) || 10,
+			page: Number(page),
+			limit: Number(limit) || 250,
 			sort: { from: 1 },
 		};
 		let data = await slot.paginate(query, options);
-		return res.status(200).json({ status: 200, message: "Slot data found.", data: data.docs });
+		return res.status(200).json({ status: 200, message: "Slot data found.", data: data });
 	} catch (err) {
 		return res.status(500).send({ msg: "internal server error ", error: err.message, });
 	}
