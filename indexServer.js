@@ -43,6 +43,5 @@ app.use((err, req, res, next) => {
 app.listen(process.env.PORT, () => {
     console.log(`Your server is Running on port ${process.env.PORT}`)
 })
-module.exports = {
-    handler: serverless(app)
-}
+module.exports = app;
+module.exports.handler = serverless(app);

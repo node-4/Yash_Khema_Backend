@@ -9,6 +9,10 @@ const orderSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Services",
   },
+  slot: {
+    type: Schema.Types.ObjectId,
+    ref: "slot",
+  },
   quantity: {
     type: Number
   },

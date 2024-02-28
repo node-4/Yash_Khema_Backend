@@ -234,7 +234,7 @@ exports.getPopularService = async (req, res) => {
 exports.getSlot = async (req, res) => {
 	try {
 		const { fromDate, date, toDate, page, limit } = req.query;
-		let query = {};
+		let query = { isBooked: false };
 		if (date) {
 			query.date = date;
 		}
@@ -304,4 +304,4 @@ async function generateSlotsForNext5Years() {
 	const generatedSlots = await generateSlots(new Date('2024-02-01T00:00:00Z'), 365);
 	console.log(generatedSlots);
 }
-generateSlotsForNext5Years();
+// generateSlotsForNext5Years();

@@ -8,6 +8,7 @@ router.post('/create', Auth.requireSignin, order.createOrder);
 router.get('/', order.getAllOrders);
 router.get('/:id', order.getOrderById);
 router.put('/:id', order.updateOrder);
+router.put('/updatePaymentStatus/:id', order.updatePaymentStatus);
 router.delete('/:id', order.deleteOrder);
 router.get('/getAllPaidOrder/:id', order.getAllPaidOrder)
 router.get('/getAllOrders/ByToken', Auth.requireSignin, order.getAllOrdersByToken);

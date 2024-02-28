@@ -5,6 +5,7 @@ const installerReview = require("../Models/installerReview");
 const wallet = require("../Models/Wallet");
 const transactionModel = require("../Models/transactionModel");
 const Services = require('../Models/Services');
+const slot = require('../Models/slot');
 
 exports.createOrder = async (req, res) => {
   try {
@@ -76,6 +77,7 @@ exports.createOrder = async (req, res) => {
         order.instellers = instellers
         order.serviceDate = req.body.serviceDate;
         order.serviceTime = req.body.serviceTime;
+        order.slot = req.body.slot;
         console.log(order)
         const result = await Order.create(order);
         return res.status(201).send({ status: true, message: "Success", data: result });
@@ -120,26 +122,37 @@ exports.getOrderById = async (req, res) => {
     return res.status(500).send({ msg: "internal server error ", error: err.message });
   }
 };
+exports.updatePaymentStatus = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).exec();
+    if (!order) {
+      return res.status(404).send({ status: false, message: `No order found with ID ${req.params.id}`, });
+    }
+    order.isPaid = req.body.isPaid;
+    if (req.body.isPaid == true) {
+      order.paidAt = new Date();
+      let findSlot = await slot.findById({ _id: order.slot });
+      if (findSlot) {
+        let update = await slot.findByIdAndUpdate({ _id: findSlot._id }, { $set: { isBooked: true } }, { new: true });
+        console.log(update);
+      }
+    }
+    const updatedOrder = await order.save();
+    return res.status(200).send({ status: true, message: "Success", data: updatedOrder });
+  } catch (err) {
+    console.log(err.message);
+    return res.status(500).send({ msg: "internal server error ", error: err.message });
+  }
+};
 exports.updateOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).exec();
     if (!order) {
-      return res.status(404).send({
-        status: false,
-        message: `No order found with ID ${req.params.id}`,
-      });
+      return res.status(404).send({ status: false, message: `No order found with ID ${req.params.id}`, });
     }
 
-    order.shippingAddress = {
-      address: req.body.address,
-      city: req.body.city,
-      postalCode: req.body.postalCode,
-      country: req.body.country,
-    };
-    order.grandTotal =
-      parseInt(req.body.totalPrice) +
-      parseInt(req.body.shippingPrice) +
-      parseInt(req.body.taxPrice);
+    order.shippingAddress = { address: req.body.address, city: req.body.city, postalCode: req.body.postalCode, country: req.body.country, };
+    order.grandTotal = parseInt(req.body.totalPrice) + parseInt(req.body.shippingPrice) + parseInt(req.body.taxPrice);
 
     const updatedOrder = await order.save();
 
@@ -153,10 +166,7 @@ exports.deleteOrder = async (req, res) => {
   try {
     const order = await Order.findByIdAndDelete(req.params.id).exec();
     if (!order) {
-      return res.status(404).send({
-        status: false,
-        message: `No order found with ID ${req.params.id}`,
-      });
+      return res.status(404).send({ status: false, message: `No order found with ID ${req.params.id}`, });
     }
     return res.status(200).send({ status: true, message: "Success", data: order });
   } catch (err) {
