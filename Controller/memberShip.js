@@ -1,0 +1,190 @@
+const city = require('../Models/Membership/city');
+const plans = require('../Models/Membership/plans');
+const society = require('../Models/Membership/society');
+exports.AddCity = async (req, res) => {
+        try {
+                let result = await city.findOne({ name: req.body.name })
+                if (result) {
+                        return { success: false, status: 409, error: 'City already exit!!!' }
+                } else {
+                        const data = { name: req.body.name, }
+                        const result1 = await city.create(data);
+                        if (result1) {
+                                return res.status(200).json({ success: true, data: result1, status: 200, message: "Successfully Found Data !!" })
+                        }
+                }
+        } catch (err) {
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.getAllCity = async (req, res) => {
+        try {
+                const result = await city.find({})
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'Record Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({
+                        message: err.message
+                })
+        }
+}
+exports.DeleteCity = async (req, res) => {
+        try {
+                let result = await city.findByIdAndDelete({ _id: req.params.id });
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Delete Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'Record Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.getByIdCity = async (req, res) => {
+        try {
+                const result = await city.findById({ _id: req.params.id })
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "City Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'City Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.AddSociety = async (req, res) => {
+        try {
+                const findCity = await city.findById({ _id: req.body.cityId })
+                if (findCity) {
+                        let result = await society.findOne({ name: req.body.name, cityId: findCity._id })
+                        if (result) {
+                                return { success: false, status: 409, error: 'Society already exit!!!' }
+                        } else {
+                                const data = { name: req.body.name, cityId: findCity._id }
+                                const result1 = await society.create(data);
+                                if (result1) {
+                                        return res.status(200).json({ success: true, data: result1, status: 200, message: "Successfully Found Data !!" })
+                                }
+                        }
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'City Not Found!!!' })
+                }
+        } catch (err) {
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.getAllSociety = async (req, res) => {
+        try {
+                if (req.query.cityId) {
+                        const result = await society.find({ cityId: req.query.cityId })
+                        if (result) {
+                                return res.status(200).json({ success: true, data: result, status: 200, message: "Successfully Found Data !!" })
+                        } else {
+                                return res.status(200).json({ success: false, status: 404, error: 'Record Not Found!!!' })
+                        }
+                } else {
+                        const result = await society.find({})
+                        if (result) {
+                                return res.status(200).json({ success: true, data: result, status: 200, message: "Successfully Found Data !!" })
+                        } else {
+                                return res.status(200).json({ success: false, status: 404, error: 'Record Not Found!!!' })
+                        }
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.DeleteSociety = async (req, res) => {
+        try {
+                let result = await society.findByIdAndDelete({ _id: req.params.id });
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Delete Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'Record Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.getByIdSociety = async (req, res) => {
+        try {
+                const result = await society.findById({ _id: req.params.Id })
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Society Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'Society Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(error);
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.AddPlans = async (req, res) => {
+        try {
+                let result = await plans.findOne({ name: req.body.name })
+                if (result) {
+                        const data = { name: req.body.name, price: req.body.price, services: req.body.services, }
+                        const result1 = await plans.findByIdAndUpdate({ _id: result._id }, { $set: data }, { new: true });
+                        if (result1) {
+                                return res.status(200).json({ success: true, data: result1, status: 200, message: "Successfully Found Data !!" })
+                        }
+                } else {
+                        const data = { name: req.body.name, price: req.body.price, services: req.body.services, }
+                        const result1 = await plans.create(data);
+                        if (result1) {
+                                return res.status(200).json({ success: true, data: result1, status: 200, message: "Successfully Found Data !!" })
+                        }
+                }
+        } catch (err) {
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.getAllPlans = async (req, res) => {
+        try {
+                const result = await plans.find({})
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'Record Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({
+                        message: err.message
+                })
+        }
+}
+exports.DeletePlans = async (req, res) => {
+        try {
+                let result = await plans.findByIdAndDelete({ _id: req.params.id });
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Delete Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'Record Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({ message: err.message })
+        }
+}
+exports.getByIdPlans = async (req, res) => {
+        try {
+                const result = await plans.findById({ _id: req.params.id })
+                if (result) {
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Plans Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'Plans Not Found!!!' })
+                }
+        } catch (err) {
+                console.error(err);
+                return res.status(400).json({ message: err.message })
+        }
+}

@@ -25,4 +25,5 @@ route.use('/service', require('./ServicesRoutes'));
 route.use('/order', require('./order'))
 route.use('/notify', require('./notification'))
 route.use('/contact', require('./contact'))
+route.use('/member', require('./memberShipRoutes'));
 module.exports = route
