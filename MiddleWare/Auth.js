@@ -50,7 +50,8 @@ const adminMiddleware = (req, res, next) => {
                 message: "UnAuthorised ! Admin role is required! ",
             });
         }
-        const user = await admin.findOne({ email: decoded.id });
+        console.log(decoded);
+        const user = await admin.findOne({ _id: decoded.id._id });
         if (!user) {
             return res.status(400).send({ message: "The admin that this  token belongs to does not exist", });
         }
