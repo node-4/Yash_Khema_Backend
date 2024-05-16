@@ -73,8 +73,8 @@ exports.updateSubCategory = async (req, res) => {
         try {
                 const result = await subCategory.findById({ _id: req.params.id }).populate('catgory');
                 if (result) {
-                        result.title = req.body.title || result.title;
-                        result.catgory = req.body.catgory || result.catgory;
+                        result.title = req.body.title ?? result.title;
+                        result.catgory = req.body.catgoryId ?? result.catgory;
                         result.save();
                         return res.status(200).json({ success: true, data: result, status: 200, message: "Update Successfully Found Data !!" })
                 } else {
