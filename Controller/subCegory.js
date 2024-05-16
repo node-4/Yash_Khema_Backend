@@ -69,3 +69,18 @@ exports.getById = async (req, res) => {
                 return res.status(400).json({ message: err.message })
         }
 }
+exports.updateSubCategory = async (req, res) => {
+        try {
+                const result = await subCategory.findById({ _id: req.params.id }).populate('catgory');
+                if (result) {
+                        result.title = req.body.title || result.title;
+                        result.catgory = req.body.catgory || result.catgory;
+                        result.save();
+                        return res.status(200).json({ success: true, data: result, status: 200, message: "Update Successfully Found Data !!" })
+                } else {
+                        return res.status(200).json({ success: false, status: 404, error: 'SubCagegory Not Found!!!' })
+                }
+        } catch (error) {
+                throw error
+        }
+}

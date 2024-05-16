@@ -78,7 +78,7 @@ const sellerSignin = (req, res, next) => {
             });
         }
         console.log(decoded);
-        const user = await seller.findOne({ email: decoded.id.email, userType: "seller" });
+        const user = await seller.findOne({ email: decoded.id.email, });
 
         if (!user) {
             return res.status(400).send({
