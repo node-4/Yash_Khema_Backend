@@ -15,6 +15,7 @@ route.use('/help', require('./helpandSupport'));
 route.use('/seller', require('./SellerRoutes'));
 route.use('/subCategory', require('./subcategory'));
 route.use('/privacy', require('./privacy'))
+route.use('/whychooseus', require('./whychooseus'))
 route.use('/terms', require('./terms'));
 route.use('/user', require('./UserRoutes'));
 route.use('/installer', require('./installer_auth'));

@@ -21,6 +21,22 @@ const OtpSchema = mongoose.Schema({
     versionKey: false
 });
 const userSchema = mongoose.Schema({
+    society: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "society"
+    },
+    flatNo: {
+        type: String,
+    },
+    carNo: {
+        type: String,
+    },
+    carModel: {
+        type: String,
+    },
+    parkingNo: {
+        type: String,
+    },
     name: {
         type: String,
     },

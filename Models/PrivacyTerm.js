@@ -3,14 +3,17 @@ const mongoose = require('mongoose');
 
 const privacy = mongoose.Schema({
     privacy: {
-        type: String, 
+        type: String,
     },
     terms: {
-        type: String, 
+        type: String,
+    },
+    whyChooseUs: {
+        type: String,
     },
     type: {
         type: String,
-        enum:["Privacy","Term"]
+        enum: ["Privacy", "Term", 'Why choose us']
     }
 })
 
