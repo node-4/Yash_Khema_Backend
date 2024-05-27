@@ -22,8 +22,7 @@ const OtpSchema = mongoose.Schema({
 });
 const userSchema = mongoose.Schema({
     society: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "society"
+        type: String,
     },
     flatNo: {
         type: String,
