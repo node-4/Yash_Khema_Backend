@@ -6,5 +6,6 @@ const servicePlanSchema = new mongoose.Schema({
                 type: String,
                 enum: ['Basic Plan', 'Premium Plan', 'forBothCarsAndTwoWheelersPrice', 'forTwoWheelersOnlyPrice'],
         },
+        image: String,
 });
 module.exports = mongoose.model('ServicePlan', servicePlanSchema);

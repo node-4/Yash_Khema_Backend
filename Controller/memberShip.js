@@ -133,13 +133,23 @@ exports.AddPlans = async (req, res) => {
         try {
                 let result = await plans.findOne({ name: req.body.name })
                 if (result) {
-                        const data = { name: req.body.name, price: req.body.price, services: req.body.services, }
+                        let image = null;
+                        if (req.file) {
+                                image = req.file.path;
+                        } else {
+                                image = result.image;
+                        }
+                        const data = { name: req.body.name, price: req.body.price, services: req.body.services, image: image }
                         const result1 = await plans.findByIdAndUpdate({ _id: result._id }, { $set: data }, { new: true });
                         if (result1) {
                                 return res.status(200).json({ success: true, data: result1, status: 200, message: "Successfully Found Data !!" })
                         }
                 } else {
-                        const data = { name: req.body.name, price: req.body.price, services: req.body.services, }
+                        let image = null;
+                        if (req.file) {
+                                image = req.file.path
+                        }
+                        const data = { name: req.body.name, price: req.body.price, services: req.body.services, image: image }
                         const result1 = await plans.create(data);
                         if (result1) {
                                 return res.status(200).json({ success: true, data: result1, status: 200, message: "Successfully Found Data !!" })
