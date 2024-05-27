@@ -267,6 +267,7 @@ exports.getUser = async (userId) => {
 }
 exports.updateUser = async (userId, payload) => {
 	try {
+		console.log(payload)
 		let result = await User.findOneAndUpdate({ _id: userId }, payload)
 		if (result) {
 			return {

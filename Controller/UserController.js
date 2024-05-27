@@ -129,21 +129,37 @@ exports.getUser = async (req, res) => {
 }
 exports.updateUser = async (req, res) => {
 	try {
-		let payload = req.body;
-		console.log(req.body)
-		if (req.file) {
-			let userProfile = { filename: req.file.filename, filetype: req.file.mimetype, filesize: req.file.size, url: req.file.path }
-			payload.profile = userProfile
-		}
-		let userId = req.user
-		let result = await UserService.updateUser(userId, payload)
-		if (result.success) {
-			return res.status(result.code).json({ success: result.success, message: result.message, data: result.data })
+		let userId = req.user._id
+		console.log(req.user)
+		const result = await User.findOne({ _id: userId })
+		if (result) {
+			let profile;
+			if (req.file) {
+				profile = req.file.path
+			} else {
+				profile = result.profile
+			}
+			let obj = {
+				name: req.body.name ?? result.name,
+				phone_number: req.body.phone_number ?? result.phone_number,
+				society: req.body.society ?? result.society,
+				flatNo: req.body.flatNo ?? result.flatNo,
+				carNo: req.body.carNo ?? result.carNo,
+				carModel: req.body.carModel ?? result.carModel,
+				parkingNo: req.body.parkingNo ?? result.parkingNo,
+				email: req.body.email ?? result.email,
+				profile: profile
+			}
+			let result1 = await User.findByIdAndUpdate({ _id: userId }, { $set: obj }, { new: true })
+			if (result1) {
+				return res.status(200).json({ success: true, message: 'Successfully updated', data: result1 })
+			}
 		} else {
-			return res.status(result.code).json({ success: result.success, message: result.error })
+			return res.status(400).json({ success: false, message: 'Something Went Wrong' })
 		}
 	} catch (error) {
-		throw error
+		console.log(error)
+		return res.status(500).json({ success: false, message: 'Something Went Wrong' })
 	}
 }
 exports.sendOtp = async (req, res) => {
